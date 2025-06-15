@@ -1,0 +1,95 @@
+Hifz Section (Quran Memorization Stage) Entry Form (Auto-Section Detected)
+
+1. Select Student
+Dropdown or live search (e.g., Abdullah Farid (S102) – Hifz – Ustad Kareem)
+
+
+On selection, system auto-fetches:
+
+
+Section (Hifz) — read-only
+
+
+Current Memorizing Para (for Hifz students)
+
+
+Assigned Teacher
+
+
+
+2. Task Type
+Dropdown with options:
+
+
+Sabaq
+
+
+Ammpara
+
+
+Amukta
+
+3. Task-specific Input Fields
+Task Type
+Input Fields
+Sabaq
+- Para: Auto-filled with current memorizing para, editable dropdown (1–30)
+- From Page: Dropdown select, options loaded from stored page data for selected para
+- To Page: Dropdown select, options loaded from stored page data for selected para, only pages ≥ From Page selectable
+- Pages Read: Auto-calculated as (To Page - From Page + 1), manual override toggle available
+Ammapara
+- Para (auto-filled as current memorizing para, read-only)
+- From Page (auto-filled start page of para, read-only)
+- To Page (auto-filled end page of para, read-only)
+- Pages Read (auto-calculated full para pages, manual override toggle available)
+Amukta
+- Total Paras Memorized (auto-loaded, read-only)
+- Paras Revised Today (multi-select dropdown 1–30)
+- Accuracy Score (optional 1–5)
+- Remarks / Observations (textarea)
+
+
+4. Accuracy Score (Optional)
+Dropdown or star rating (1 to 5) — applicable for all task types
+
+
+
+5. Remarks / Observations
+Free text field with optional preset tags (e.g., “Good fluency”, “Needs revision”, “Tajweed errors”)
+
+
+
+6. Auto-Calculation & Validation
+Pages Read calculated automatically from page inputs (for Sabaq & Ammapara)
+
+
+Duplicate entry prevention for Sabaqi (one Ammapara per para per day)
+
+
+Validation for page ranges and para selection
+
+
+For Sabaq, To Page dropdown disables pages less than selected From Page to ensure logical range
+
+
+
+7. Submit Button
+
+📥 Example JSON Payload on Submit (Sabaq)
+
+{
+  "studentId": "S102",
+  "date": "2025-06-04",
+  "section": "Hifz",
+  "taskType": "Sabaq",
+  "para": 15,
+  "fromPage": 210,
+  "toPage": 214,
+  "pagesRead": 5,
+  "accuracyScore": 4,
+  "remarks": "Started new pages, good focus."
+}
+
+
+
+

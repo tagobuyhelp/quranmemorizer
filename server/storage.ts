@@ -156,8 +156,18 @@ export class MemStorage implements IStorage {
   async createHifzEntry(insertHifzEntry: InsertHifzEntry): Promise<HifzEntry> {
     const id = this.currentHifzEntryId++;
     const hifzEntry: HifzEntry = { 
-      ...insertHifzEntry, 
       id,
+      studentId: insertHifzEntry.studentId,
+      date: insertHifzEntry.date,
+      section: insertHifzEntry.section,
+      taskType: insertHifzEntry.taskType,
+      para: insertHifzEntry.para ?? null,
+      fromPage: insertHifzEntry.fromPage ?? null,
+      toPage: insertHifzEntry.toPage ?? null,
+      pagesRead: insertHifzEntry.pagesRead ?? null,
+      parasRevised: insertHifzEntry.parasRevised ?? null,
+      accuracyScore: insertHifzEntry.accuracyScore ?? null,
+      remarks: insertHifzEntry.remarks ?? null,
       createdAt: new Date(),
     };
     this.hifzEntries.set(id, hifzEntry);

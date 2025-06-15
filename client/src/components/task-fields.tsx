@@ -305,9 +305,9 @@ export function TaskFields({ form, taskType, selectedStudent, paraData }: TaskFi
                     {Array.from({ length: selectedStudent?.totalParas || 0 }, (_, i) => i + 1).map((paraNum) => (
                       <label key={paraNum} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
                         <Checkbox
-                          checked={field.value?.includes(paraNum) || false}
+                          checked={Array.isArray(field.value) && field.value.includes(paraNum)}
                           onCheckedChange={(checked) => {
-                            const currentValue = field.value || [];
+                            const currentValue = Array.isArray(field.value) ? field.value : [];
                             if (checked) {
                               field.onChange([...currentValue, paraNum]);
                             } else {
@@ -322,7 +322,7 @@ export function TaskFields({ form, taskType, selectedStudent, paraData }: TaskFi
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <div className="text-xs text-gray-500">
                       <span className="font-medium">Selected:</span>{" "}
-                      {field.value?.length > 0 
+                      {Array.isArray(field.value) && field.value.length > 0 
                         ? `Para ${field.value.join(", ")} (${field.value.length} paras)`
                         : "None selected"
                       }

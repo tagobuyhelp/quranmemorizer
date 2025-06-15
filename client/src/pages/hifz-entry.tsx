@@ -173,7 +173,7 @@ export default function HifzEntry() {
   return (
     <div className="min-h-screen bg-neutral">
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-4 py-4 md:py-8">
         <Card className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           {/* Form Header */}
           <div className="bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-4">
@@ -189,9 +189,9 @@ export default function HifzEntry() {
           </div>
 
           {/* Form Body */}
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
                 {/* Student Selection */}
                 <div className="space-y-2">
                   <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
@@ -250,30 +250,30 @@ export default function HifzEntry() {
                         <RadioGroup
                           value={field.value}
                           onValueChange={field.onChange}
-                          className="grid grid-cols-1 md:grid-cols-3 gap-3"
+                          className="grid grid-cols-1 gap-3"
                         >
-                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 touch-target has-[:checked]:border-primary has-[:checked]:bg-primary/5">
                             <RadioGroupItem value="sabaq" id="sabaq" />
-                            <div>
-                              <label htmlFor="sabaq" className="font-medium text-gray-900 cursor-pointer">
+                            <div className="flex-1">
+                              <label htmlFor="sabaq" className="font-medium text-gray-900 cursor-pointer block">
                                 Sabaq
                               </label>
                               <div className="text-xs text-gray-500">New Lesson</div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 touch-target has-[:checked]:border-primary has-[:checked]:bg-primary/5">
                             <RadioGroupItem value="ammapara" id="ammapara" />
-                            <div>
-                              <label htmlFor="ammapara" className="font-medium text-gray-900 cursor-pointer">
+                            <div className="flex-1">
+                              <label htmlFor="ammapara" className="font-medium text-gray-900 cursor-pointer block">
                                 Ammapara
                               </label>
                               <div className="text-xs text-gray-500">Full Para Review</div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 touch-target has-[:checked]:border-primary has-[:checked]:bg-primary/5">
                             <RadioGroupItem value="amukta" id="amukta" />
-                            <div>
-                              <label htmlFor="amukta" className="font-medium text-gray-900 cursor-pointer">
+                            <div className="flex-1">
+                              <label htmlFor="amukta" className="font-medium text-gray-900 cursor-pointer block">
                                 Amukta
                               </label>
                               <div className="text-xs text-gray-500">Revision Test</div>
@@ -332,14 +332,14 @@ export default function HifzEntry() {
                       </FormLabel>
                       
                       {/* Preset Tags */}
-                      <div className="flex flex-wrap gap-2 mb-3">
+                      <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 mb-3">
                         {presetTags.map((tag) => (
                           <Button
                             key={tag}
                             type="button"
                             variant={selectedTags.includes(tag) ? "default" : "outline"}
                             size="sm"
-                            className="text-xs"
+                            className="text-xs touch-target justify-start"
                             onClick={() => handleTagClick(tag)}
                           >
                             {tag}
@@ -361,11 +361,12 @@ export default function HifzEntry() {
                 />
 
                 {/* Form Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+                <div className="flex flex-col gap-3 pt-6 border-t border-gray-200">
                   <Button
                     type="submit"
-                    className="flex-1"
+                    className="w-full touch-target"
                     disabled={createEntryMutation.isPending}
+                    size="lg"
                   >
                     <Save className="mr-2 h-4 w-4" />
                     {createEntryMutation.isPending ? "Saving..." : "Submit Progress Entry"}
@@ -373,10 +374,12 @@ export default function HifzEntry() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="sm:w-auto px-6"
+                    onClick={handleReset}
+                    className="w-full touch-target"
+                    size="lg"
                   >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Save Draft
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Reset Form
                   </Button>
                   <Button
                     type="button"

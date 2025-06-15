@@ -73,4 +73,28 @@
   .text-neutral {
     color: var(--neutral);
   }
+  
+  /* Mobile-friendly utilities */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .mobile-form-spacing {
+    gap: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-form-spacing {
+      gap: 0.75rem;
+    }
+    
+    .mobile-compact {
+      padding: 0.75rem;
+    }
+    
+    .mobile-text-sm {
+      font-size: 0.875rem;
+    }
+  }
 }

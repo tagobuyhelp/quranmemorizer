@@ -45,6 +45,11 @@ This is a comprehensive Quran learning progress tracking system supporting multi
    - **Fluent Reading**: New reading sessions with page ranges
    - **Revision**: Review of previous reading material
 
+3. **Noorani Qaida Section**: Arabic reading fundamentals and Tajweed training
+   - **New Lesson**: Learning new letters, sounds, and rules (30 structured lessons)
+   - **Revision**: Reviewing earlier lessons for reinforcement
+   - **Tajweed Practice**: Focused pronunciation and recitation rule application
+
 ### UI Components
 - **StudentSelector**: Searchable dropdown with student information display
 - **TaskFields**: Dynamic form fields based on selected task type
@@ -97,6 +102,8 @@ This is a comprehensive Quran learning progress tracking system supporting multi
 - June 15, 2025: Added Najera Section support with fluent reading tracking
 - June 15, 2025: Implemented dual-section navigation system
 - June 15, 2025: Added section-specific student data and validation
+- June 15, 2025: Added Noorani Qaida Section with 30 structured lessons and Tajweed tracking
+- June 15, 2025: Completed comprehensive three-section learning center system
 
 ## User Preferences
 

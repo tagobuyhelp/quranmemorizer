@@ -4,9 +4,10 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Users, Home } from "lucide-react";
+import { BookOpen, Users, Home, GraduationCap } from "lucide-react";
 import HifzEntry from "@/pages/hifz-entry";
 import NajeraEntry from "@/pages/najera-entry";
+import NooraniEntry from "@/pages/noorani-entry";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -29,7 +30,7 @@ function Navigation() {
           <div className="flex items-center space-x-2">
             <Link href="/hifz">
               <Button 
-                variant={location === "/hifz" ? "default" : "ghost"}
+                variant={location === "/hifz" || location === "/" ? "default" : "ghost"}
                 size="sm"
                 className="flex items-center space-x-2"
               >
@@ -47,6 +48,16 @@ function Navigation() {
                 <span>Najera Section</span>
               </Button>
             </Link>
+            <Link href="/noorani">
+              <Button 
+                variant={location === "/noorani" ? "default" : "ghost"}
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <GraduationCap className="h-4 w-4" />
+                <span>Noorani Qaida</span>
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -62,6 +73,7 @@ function Router() {
         <Route path="/" component={HifzEntry} />
         <Route path="/hifz" component={HifzEntry} />
         <Route path="/najera" component={NajeraEntry} />
+        <Route path="/noorani" component={NooraniEntry} />
         <Route component={NotFound} />
       </Switch>
     </div>

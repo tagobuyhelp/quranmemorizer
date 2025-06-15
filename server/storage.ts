@@ -108,6 +108,16 @@ export class MemStorage implements IStorage {
       { studentId: 'N218', name: 'Zainab Omar', section: 'Najera', teacher: 'Ustad Ali', currentPara: 9, totalParas: 30 },
       { studentId: 'N220', name: 'Ruqayyah Hassan', section: 'Najera', teacher: 'Ustad Rashid', currentPara: 17, totalParas: 30 },
       { studentId: 'N222', name: 'Safia Ibrahim', section: 'Najera', teacher: 'Ustad Ali', currentPara: 6, totalParas: 30 },
+      
+      // Noorani Qaida Section Students
+      { studentId: 'Q201', name: 'Fatima Zahra', section: 'Noorani Qaida', teacher: 'Ustad Ali', currentPara: 5, totalParas: 30 },
+      { studentId: 'Q203', name: 'Ahmed Malik', section: 'Noorani Qaida', teacher: 'Ustad Hassan', currentPara: 3, totalParas: 30 },
+      { studentId: 'Q205', name: 'Zara Siddiq', section: 'Noorani Qaida', teacher: 'Ustad Ali', currentPara: 8, totalParas: 30 },
+      { studentId: 'Q207', name: 'Omar Tariq', section: 'Noorani Qaida', teacher: 'Ustad Hassan', currentPara: 2, totalParas: 30 },
+      { studentId: 'Q209', name: 'Layla Ahmad', section: 'Noorani Qaida', teacher: 'Ustad Ali', currentPara: 12, totalParas: 30 },
+      { studentId: 'Q211', name: 'Yusuf Rahman', section: 'Noorani Qaida', teacher: 'Ustad Hassan', currentPara: 6, totalParas: 30 },
+      { studentId: 'Q213', name: 'Amina Khan', section: 'Noorani Qaida', teacher: 'Ustad Ali', currentPara: 10, totalParas: 30 },
+      { studentId: 'Q215', name: 'Ibrahim Malik', section: 'Noorani Qaida', teacher: 'Ustad Hassan', currentPara: 4, totalParas: 30 },
     ];
 
     for (const studentData of sampleStudents) {

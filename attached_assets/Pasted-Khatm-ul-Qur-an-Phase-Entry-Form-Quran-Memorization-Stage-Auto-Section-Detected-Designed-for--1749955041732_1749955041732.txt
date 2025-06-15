@@ -1,0 +1,130 @@
+Khatm-ul-Qur’an Phase Entry Form
+(Quran Memorization Stage — Auto-Section Detected)
+ Designed for tracking progressive full-Qur’an revision in Paras (Juz), leading to complete recitation in one sitting.
+
+1. Select Student
+Dropdown / Live Search
+ Example: *Abdullah Farid (S102) – Hifz – Ustad Kareem_
+
+
+Auto-Fetched Fields:
+Section: Hifz (read-only)
+
+
+Assigned Teacher
+
+
+Total Paras Memorized (read-only)
+
+
+
+2. Recitation Stage / Type
+What kind of Khatm stage is being recorded?
+Dropdown Options:
+
+
+1 Para Recitation
+
+
+2–3 Paras Recitation
+
+
+4–5 Paras Recitation
+
+
+10 Paras Recitation
+
+
+Half Qur’an (15 Paras)
+
+
+Full Qur’an (30 Paras in 1 Sitting)
+
+
+Final Recitation (Certified / Public)
+
+
+
+3. Paras Covered
+Multi-Select Dropdown (1–30)
+ Example: [1, 2, 3, 4]
+ (Disable Paras not yet memorized)
+
+
+
+4. Recitation Date
+Date Picker
+ Default: Today
+
+
+
+5. Recitation Duration (Time Taken)
+Input (HH:MM)
+ Example: 02:15 for 2 hours 15 minutes
+
+
+
+6. Scores (Optional but Recommended)
+Fluency Score (1–5)
+
+
+Accuracy Score (1–5)
+
+
+Tajweed Score (1–5)
+
+
+
+7. Mistake Observations / Tags
+Textarea + Suggested Tags:
+
+
+“Fluent delivery”
+
+
+“Minor stumbles”
+
+
+“Repeats required”
+
+
+“Excellent retention”
+
+
+“Needs breath control”
+
+
+
+8. Teacher Remarks
+Textarea
+ Optional freeform comments
+
+
+
+9. Submit Button
+
+📥 Example JSON Payload
+json
+{
+  "studentId": "S102",
+  "date": "2025-06-04",
+  "section": "Hifz",
+  "recitationType": "4–5 Paras Recitation",
+  "parasCovered": [5, 6, 7, 8, 9],
+  "duration": "02:30",
+  "fluencyScore": 4,
+  "accuracyScore": 5,
+  "tajweedScore": 4,
+  "mistakes": "Minor stumbles in Para 6",
+  "remarks": "Excellent pace, should attempt 10 Paras next session."
+}
+
+
+✅ Benefits of This Form
+Matches real Hifz Khatm strategy used in traditional madrasahs.
+
+
+Enables gradual growth tracking: 1 → 3 → 5 → 10 → Full Quran.
+
+
+Helps instructors decide readiness for final certification recitation.

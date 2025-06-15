@@ -40,6 +40,7 @@ This is a comprehensive Quran learning progress tracking system supporting multi
    - **Sabaq**: New memorization with page-specific tracking
    - **Ammapara**: Full chapter review (auto-calculated pages)
    - **Amukta**: Revision of previously memorized chapters with multi-select
+   - **Khatm-ul-Qur'an**: Progressive full Quran recitation tracking with multiple stages
 
 2. **Najera Section**: Fluent reading and revision tracking
    - **Fluent Reading**: New reading sessions with page ranges
@@ -104,6 +105,8 @@ This is a comprehensive Quran learning progress tracking system supporting multi
 - June 15, 2025: Added section-specific student data and validation
 - June 15, 2025: Added Noorani Qaida Section with 30 structured lessons and Tajweed tracking
 - June 15, 2025: Completed comprehensive three-section learning center system
+- June 15, 2025: Added Khatm-ul-Qur'an recitation tracking with progressive stages (1→3→5→10→15→30 paras)
+- June 15, 2025: Implemented specialized recitation scoring system with fluency, accuracy, and tajweed ratings
 
 ## User Preferences
 

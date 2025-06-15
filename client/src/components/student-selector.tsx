@@ -55,7 +55,9 @@ export function StudentSelector({ selectedStudent, onSelect }: StudentSelectorPr
                   <span className="ml-2">{selectedStudent.teacher}</span>
                 </div>
               </div>
-              <div className="text-xs text-gray-500">Para {selectedStudent.currentPara}</div>
+              <div className="text-xs text-gray-500">
+                {selectedStudent.section === "Noorani Qaida" ? `Lesson ${selectedStudent.currentPara}` : `Para ${selectedStudent.currentPara}`}
+              </div>
             </div>
           ) : (
             <div className="flex items-center text-gray-500">
@@ -108,7 +110,9 @@ export function StudentSelector({ selectedStudent, onSelect }: StudentSelectorPr
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500">Para {student.currentPara}</div>
+                  <div className="text-xs text-gray-500">
+                {student.section === "Noorani Qaida" ? `Lesson ${student.currentPara}` : `Para ${student.currentPara}`}
+              </div>
                 </CommandItem>
               ))}
             </CommandGroup>

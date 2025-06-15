@@ -229,7 +229,7 @@ export default function NooraniEntry() {
 
                 {/* Auto-populated Student Details */}
                 {selectedStudent && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div>
                       <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                         Section
@@ -237,6 +237,15 @@ export default function NooraniEntry() {
                       <div className="bg-white px-3 py-2 rounded border border-gray-200">
                         <span className="text-sm font-medium text-gray-900">{selectedStudent.section}</span>
                         <span className="text-xs text-gray-500 ml-2">(Read-only)</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                        Current Lesson
+                      </label>
+                      <div className="bg-white px-3 py-2 rounded border border-gray-200">
+                        <span className="text-sm font-medium text-gray-900">{selectedStudent.currentPara}</span>
+                        <span className="text-xs text-gray-500 ml-2">Current Progress</span>
                       </div>
                     </div>
                     <div>

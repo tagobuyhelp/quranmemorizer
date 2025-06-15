@@ -381,15 +381,7 @@ export default function HifzEntry() {
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Reset Form
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleReset}
-                    className="sm:w-auto px-6"
-                  >
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Reset
-                  </Button>
+
                 </div>
               </form>
             </Form>

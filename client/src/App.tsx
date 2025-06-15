@@ -5,12 +5,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { BookOpen, Users, Home, GraduationCap, Crown, Menu } from "lucide-react";
+import { BookOpen, Users, Home, GraduationCap, Crown, Menu, Zap } from "lucide-react";
 import { useState } from "react";
 import HifzEntry from "@/pages/hifz-entry";
 import NajeraEntry from "@/pages/najera-entry";
 import NooraniEntry from "@/pages/noorani-entry";
 import KhatmEntry from "@/pages/khatm-entry";
+import QuickEntry from "@/pages/quick-entry";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -18,6 +19,7 @@ function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const navigationItems = [
+    { href: "/quick", icon: Zap, label: "Quick Entry", active: location === "/quick" },
     { href: "/hifz", icon: Home, label: "Hifz Daily", active: location === "/hifz" || location === "/" },
     { href: "/khatm", icon: Crown, label: "Khatm Recitation", active: location === "/khatm" },
     { href: "/najera", icon: Users, label: "Najera Section", active: location === "/najera" },
@@ -94,7 +96,8 @@ function Router() {
     <div className="min-h-screen bg-neutral">
       <Navigation />
       <Switch>
-        <Route path="/" component={HifzEntry} />
+        <Route path="/" component={QuickEntry} />
+        <Route path="/quick" component={QuickEntry} />
         <Route path="/hifz" component={HifzEntry} />
         <Route path="/khatm" component={KhatmEntry} />
         <Route path="/najera" component={NajeraEntry} />

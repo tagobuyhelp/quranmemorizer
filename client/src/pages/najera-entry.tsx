@@ -6,27 +6,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { StudentSelector } from "@/components/student-selector";
-import { TaskFields } from "@/components/task-fields";
 import { StarRating } from "@/components/star-rating";
-import { BookOpen, Save, RotateCcw, Edit } from "lucide-react";
+import { BookOpen, Save, RotateCcw } from "lucide-react";
 import type { Student, ParaData } from "@shared/schema";
 
 const formSchema = z.object({
   studentId: z.string().min(1, "Please select a student"),
-  taskType: z.enum(["sabaq", "ammapara", "amukta"]),
-  para: z.number().optional(),
-  fromPage: z.number().optional(),
-  toPage: z.number().optional(),
-  pagesRead: z.number().optional(),
-  parasRevised: z.array(z.number()).optional(),
+  taskType: z.enum(["fluent_reading", "revision"]),
+  para: z.number().min(1).max(30),
+  fromPage: z.number().min(1),
+  toPage: z.number().min(1),
+  pagesRead: z.number().min(1),
   accuracyScore: z.number().min(1).max(5).optional(),
   remarks: z.string().optional(),
 });
@@ -35,16 +31,16 @@ type FormData = z.infer<typeof formSchema>;
 
 const presetTags = [
   "Good fluency",
-  "Needs revision",
-  "Tajweed errors",
-  "Excellent progress",
-  "Concentration issues",
-  "Memorization strong",
+  "Needs tajweed correction",
+  "Excellent pronunciation",
+  "Reading pace good",
   "Requires practice",
-  "Outstanding performance"
+  "Clear articulation",
+  "Smooth flow",
+  "Needs improvement"
 ];
 
-export default function HifzEntry() {
+export default function NajeraEntry() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { toast } = useToast();
@@ -54,12 +50,11 @@ export default function HifzEntry() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       studentId: "",
-      taskType: "sabaq",
-      para: undefined,
-      fromPage: undefined,
-      toPage: undefined,
-      pagesRead: undefined,
-      parasRevised: [],
+      taskType: "fluent_reading",
+      para: 1,
+      fromPage: 1,
+      toPage: 1,
+      pagesRead: 1,
       accuracyScore: undefined,
       remarks: "",
     },
@@ -75,30 +70,64 @@ export default function HifzEntry() {
     queryKey: ["/api/paras"],
   });
 
+  // Get page options for selected para
+  const getPageOptions = (paraNumber: number) => {
+    const paraInfo = paraData.find(p => p.paraNumber === paraNumber);
+    if (!paraInfo) return [];
+    
+    const options = [];
+    for (let i = paraInfo.startPage; i <= paraInfo.endPage; i++) {
+      options.push(i);
+    }
+    return options;
+  };
+
+  // Get available page options for "To Page" based on "From Page"
+  const getToPageOptions = (paraNumber: number, fromPageNum?: number) => {
+    const paraInfo = paraData.find(p => p.paraNumber === paraNumber);
+    if (!paraInfo) return [];
+    
+    const startPage = fromPageNum || paraInfo.startPage;
+    const options = [];
+    for (let i = startPage; i <= paraInfo.endPage; i++) {
+      options.push(i);
+    }
+    return options;
+  };
+
   // Calculate pages read automatically
   useEffect(() => {
-    if (taskType === "sabaq" && fromPage && toPage && fromPage <= toPage) {
+    if (fromPage && toPage && fromPage <= toPage) {
       form.setValue("pagesRead", toPage - fromPage + 1);
-    } else if (taskType === "ammapara" && para) {
-      const paraInfo = paraData.find(p => p.paraNumber === para);
-      if (paraInfo) {
-        form.setValue("pagesRead", paraInfo.totalPages);
-        form.setValue("fromPage", paraInfo.startPage);
-        form.setValue("toPage", paraInfo.endPage);
-      }
     }
-  }, [taskType, fromPage, toPage, para, paraData, form]);
+  }, [fromPage, toPage, form]);
 
-  // Auto-populate para and page data when student changes
+  // Auto-populate student data when student changes
   useEffect(() => {
     if (selectedStudent) {
       form.setValue("studentId", selectedStudent.studentId);
+    }
+  }, [selectedStudent, form]);
 
-      if (taskType === "sabaq" || taskType === "ammapara") {
-        form.setValue("para", selectedStudent.currentPara);
+  // Reset dependent fields when para changes
+  useEffect(() => {
+    if (para) {
+      const paraInfo = paraData.find(p => p.paraNumber === para);
+      if (paraInfo) {
+        form.setValue("fromPage", paraInfo.startPage);
+        form.setValue("toPage", paraInfo.startPage);
+        form.setValue("pagesRead", 1);
       }
     }
-  }, [selectedStudent, taskType, form]);
+  }, [para, paraData, form]);
+
+  // Reset "To Page" when "From Page" changes
+  useEffect(() => {
+    if (fromPage && toPage && fromPage > toPage) {
+      form.setValue("toPage", fromPage);
+      form.setValue("pagesRead", 1);
+    }
+  }, [fromPage, form, toPage]);
 
   const createEntryMutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -106,14 +135,15 @@ export default function HifzEntry() {
       const payload = {
         ...data,
         date: currentDate,
-        section: selectedStudent?.section || "Hifz",
+        section: "Najera",
+        taskType: data.taskType === "fluent_reading" ? "Fluent Reading" : "Revision",
       };
       return apiRequest("POST", "/api/hifz-entries", payload);
     },
     onSuccess: () => {
       toast({
         title: "Success!",
-        description: "Progress entry has been saved successfully.",
+        description: "Najera entry has been saved successfully.",
       });
       form.reset();
       setSelectedStudent(null);
@@ -123,7 +153,7 @@ export default function HifzEntry() {
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to save progress entry.",
+        description: error.message || "Failed to save Najera entry.",
         variant: "destructive",
       });
     },
@@ -138,6 +168,17 @@ export default function HifzEntry() {
       });
       return;
     }
+
+    // Ensure we only allow Najera section students
+    if (selectedStudent.section !== "Najera") {
+      toast({
+        title: "Error",
+        description: "Selected student is not in Najera section.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     createEntryMutation.mutate(data);
   };
 
@@ -176,11 +217,11 @@ export default function HifzEntry() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <Card className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           {/* Form Header */}
-          <div className="bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-4">
+          <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold">Daily Progress Entry</h2>
-                <p className="text-blue-100 text-sm">Auto-Section Detection Active</p>
+                <h2 className="text-lg font-semibold">Daily Reading Entry</h2>
+                <p className="text-green-100 text-sm">Auto-Section Detection Active</p>
               </div>
               <div className="bg-white/20 px-3 py-1 rounded-full">
                 <span className="text-sm font-medium">Today: {getCurrentDate()}</span>
@@ -195,7 +236,7 @@ export default function HifzEntry() {
                 {/* Student Selection */}
                 <div className="space-y-2">
                   <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
-                    <BookOpen className="text-primary mr-2 h-4 w-4" />
+                    <BookOpen className="text-green-600 mr-2 h-4 w-4" />
                     Select Student
                   </FormLabel>
                   <StudentSelector
@@ -222,7 +263,7 @@ export default function HifzEntry() {
                       </label>
                       <div className="bg-white px-3 py-2 rounded border border-gray-200">
                         <span className="text-sm font-medium text-gray-900">{selectedStudent.currentPara}</span>
-                        <span className="text-xs text-gray-500 ml-2">Currently Memorizing</span>
+                        <span className="text-xs text-gray-500 ml-2">Current Reading</span>
                       </div>
                     </div>
                     <div>
@@ -243,40 +284,31 @@ export default function HifzEntry() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
-                        <BookOpen className="text-primary mr-2 h-4 w-4" />
+                        <BookOpen className="text-green-600 mr-2 h-4 w-4" />
                         Task Type
                       </FormLabel>
                       <FormControl>
                         <RadioGroup
                           value={field.value}
                           onValueChange={field.onChange}
-                          className="grid grid-cols-1 md:grid-cols-3 gap-3"
+                          className="grid grid-cols-1 md:grid-cols-2 gap-3"
                         >
-                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                            <RadioGroupItem value="sabaq" id="sabaq" />
+                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-green-600 has-[:checked]:bg-green-50">
+                            <RadioGroupItem value="fluent_reading" id="fluent_reading" />
                             <div>
-                              <label htmlFor="sabaq" className="font-medium text-gray-900 cursor-pointer">
-                                Sabaq
+                              <label htmlFor="fluent_reading" className="font-medium text-gray-900 cursor-pointer">
+                                Fluent Reading
                               </label>
-                              <div className="text-xs text-gray-500">New Lesson</div>
+                              <div className="text-xs text-gray-500">New Reading Session</div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                            <RadioGroupItem value="ammapara" id="ammapara" />
+                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-green-600 has-[:checked]:bg-green-50">
+                            <RadioGroupItem value="revision" id="revision" />
                             <div>
-                              <label htmlFor="ammapara" className="font-medium text-gray-900 cursor-pointer">
-                                Ammapara
+                              <label htmlFor="revision" className="font-medium text-gray-900 cursor-pointer">
+                                Revision
                               </label>
-                              <div className="text-xs text-gray-500">Full Para Review</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-3 border-2 border-gray-300 rounded-lg p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                            <RadioGroupItem value="amukta" id="amukta" />
-                            <div>
-                              <label htmlFor="amukta" className="font-medium text-gray-900 cursor-pointer">
-                                Amukta
-                              </label>
-                              <div className="text-xs text-gray-500">Revision Test</div>
+                              <div className="text-xs text-gray-500">Review Previous Reading</div>
                             </div>
                           </div>
                         </RadioGroup>
@@ -286,13 +318,110 @@ export default function HifzEntry() {
                   )}
                 />
 
-                {/* Dynamic Task Fields */}
-                <TaskFields
-                  form={form}
-                  taskType={taskType}
-                  selectedStudent={selectedStudent}
-                  paraData={paraData}
-                />
+                {/* Reading Details */}
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="para"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Para Number</FormLabel>
+                          <Select value={field.value?.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select para" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Array.from({ length: 30 }, (_, i) => i + 1).map((paraNum) => (
+                                <SelectItem key={paraNum} value={paraNum.toString()}>
+                                  {paraNum} {selectedStudent?.currentPara === paraNum && "(Current)"}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="pagesRead"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pages Read</FormLabel>
+                          <div className="bg-gray-50 px-4 py-3 rounded-lg border border-gray-200">
+                            <span className="text-sm font-medium text-gray-900">
+                              {field.value || 0}
+                            </span>
+                            <span className="text-xs text-gray-500 ml-2">(Auto-calculated)</span>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="fromPage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>From Page</FormLabel>
+                          <Select 
+                            value={field.value?.toString()} 
+                            onValueChange={(value) => field.onChange(parseInt(value))}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select from page" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {getPageOptions(para).map((pageNum) => (
+                                <SelectItem key={pageNum} value={pageNum.toString()}>
+                                  {pageNum}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="toPage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>To Page</FormLabel>
+                          <Select 
+                            value={field.value?.toString()} 
+                            onValueChange={(value) => field.onChange(parseInt(value))}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select to page" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {getToPageOptions(para, fromPage).map((pageNum) => (
+                                <SelectItem key={pageNum} value={pageNum.toString()}>
+                                  {pageNum}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
                 {/* Universal Accuracy Score */}
                 <FormField
@@ -301,8 +430,8 @@ export default function HifzEntry() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
-                        <BookOpen className="text-accent mr-2 h-4 w-4" />
-                        Overall Accuracy Score (Optional)
+                        <BookOpen className="text-green-600 mr-2 h-4 w-4" />
+                        Fluency & Accuracy Score (Optional)
                       </FormLabel>
                       <FormControl>
                         <div className="flex items-center space-x-4">
@@ -327,7 +456,7 @@ export default function HifzEntry() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
-                        <BookOpen className="text-primary mr-2 h-4 w-4" />
+                        <BookOpen className="text-green-600 mr-2 h-4 w-4" />
                         Remarks / Observations
                       </FormLabel>
                       
@@ -351,7 +480,7 @@ export default function HifzEntry() {
                         <Textarea
                           {...field}
                           rows={4}
-                          placeholder="Enter your observations about the student's performance today..."
+                          placeholder="Enter your observations about the student's reading performance today..."
                           className="resize-none"
                         />
                       </FormControl>
@@ -364,28 +493,20 @@ export default function HifzEntry() {
                 <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
                   <Button
                     type="submit"
-                    className="flex-1"
+                    className="flex-1 bg-green-600 hover:bg-green-700"
                     disabled={createEntryMutation.isPending}
                   >
                     <Save className="mr-2 h-4 w-4" />
-                    {createEntryMutation.isPending ? "Saving..." : "Submit Progress Entry"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="sm:w-auto px-6"
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Save Draft
+                    {createEntryMutation.isPending ? "Saving..." : "Submit Reading Entry"}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleReset}
-                    className="sm:w-auto px-6"
+                    className="flex-1 sm:flex-none"
                   >
                     <RotateCcw className="mr-2 h-4 w-4" />
-                    Reset
+                    Reset Form
                   </Button>
                 </div>
               </form>

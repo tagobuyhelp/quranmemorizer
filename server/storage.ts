@@ -89,6 +89,7 @@ export class MemStorage implements IStorage {
 
     // Initialize sample students
     const sampleStudents = [
+      // Hifz Section Students
       { studentId: 'S102', name: 'Abdullah Farid', section: 'Hifz', teacher: 'Ustad Kareem', currentPara: 15, totalParas: 14 },
       { studentId: 'S104', name: 'Muhammad Yusuf', section: 'Hifz', teacher: 'Ustad Ahmed', currentPara: 8, totalParas: 7 },
       { studentId: 'S107', name: 'Omar Hassan', section: 'Hifz', teacher: 'Ustad Kareem', currentPara: 22, totalParas: 21 },
@@ -97,6 +98,16 @@ export class MemStorage implements IStorage {
       { studentId: 'S115', name: 'Hassan Malik', section: 'Hifz', teacher: 'Ustad Ibrahim', currentPara: 18, totalParas: 17 },
       { studentId: 'S118', name: 'Bilal Tariq', section: 'Hifz', teacher: 'Ustad Kareem', currentPara: 3, totalParas: 2 },
       { studentId: 'S120', name: 'Zaid Ahmad', section: 'Hifz', teacher: 'Ustad Ahmed', currentPara: 25, totalParas: 24 },
+      
+      // Najera Section Students
+      { studentId: 'N205', name: 'Fatima Noor', section: 'Najera', teacher: 'Ustad Ali', currentPara: 12, totalParas: 30 },
+      { studentId: 'N208', name: 'Aisha Khan', section: 'Najera', teacher: 'Ustad Ali', currentPara: 8, totalParas: 30 },
+      { studentId: 'N210', name: 'Maryam Siddiq', section: 'Najera', teacher: 'Ustad Rashid', currentPara: 15, totalParas: 30 },
+      { studentId: 'N213', name: 'Khadija Ahmad', section: 'Najera', teacher: 'Ustad Ali', currentPara: 4, totalParas: 30 },
+      { studentId: 'N215', name: 'Hafsa Malik', section: 'Najera', teacher: 'Ustad Rashid', currentPara: 20, totalParas: 30 },
+      { studentId: 'N218', name: 'Zainab Omar', section: 'Najera', teacher: 'Ustad Ali', currentPara: 9, totalParas: 30 },
+      { studentId: 'N220', name: 'Ruqayyah Hassan', section: 'Najera', teacher: 'Ustad Rashid', currentPara: 17, totalParas: 30 },
+      { studentId: 'N222', name: 'Safia Ibrahim', section: 'Najera', teacher: 'Ustad Ali', currentPara: 6, totalParas: 30 },
     ];
 
     for (const studentData of sampleStudents) {
@@ -165,7 +176,7 @@ export class MemStorage implements IStorage {
       fromPage: insertHifzEntry.fromPage ?? null,
       toPage: insertHifzEntry.toPage ?? null,
       pagesRead: insertHifzEntry.pagesRead ?? null,
-      parasRevised: insertHifzEntry.parasRevised ?? null,
+      parasRevised: Array.isArray(insertHifzEntry.parasRevised) ? insertHifzEntry.parasRevised : null,
       accuracyScore: insertHifzEntry.accuracyScore ?? null,
       remarks: insertHifzEntry.remarks ?? null,
       createdAt: new Date(),

@@ -1,8 +1,8 @@
-# Hifz Tracking System
+# Quran Learning Center Progress Tracking System
 
 ## Overview
 
-This is a Quran memorization (Hifz) tracking system built with a modern full-stack architecture. The application helps teachers and administrators track student progress in memorizing the Quran, managing different types of tasks (Sabaq, Ammapara, Amukta), and recording daily entries with accuracy scores and remarks.
+This is a comprehensive Quran learning progress tracking system supporting multiple sections. The application helps teachers and administrators track student progress across different learning stages - both memorization (Hifz) and fluent reading (Najera) sections. Features include dynamic forms, auto-calculations, student management, and detailed progress recording with accuracy scores and observations.
 
 ## System Architecture
 
@@ -35,10 +35,15 @@ This is a Quran memorization (Hifz) tracking system built with a modern full-sta
 2. **Hifz Entries**: Record daily activities with task-specific data
 3. **Para Data**: Static reference data for Quran chapter page mappings
 
-### Task Types
-- **Sabaq**: New memorization with page-specific tracking
-- **Ammapara**: Full chapter review (auto-calculated pages)
-- **Amukta**: Revision of previously memorized chapters with multi-select
+### Learning Sections
+1. **Hifz Section**: Memorization tracking with specialized task types
+   - **Sabaq**: New memorization with page-specific tracking
+   - **Ammapara**: Full chapter review (auto-calculated pages)
+   - **Amukta**: Revision of previously memorized chapters with multi-select
+
+2. **Najera Section**: Fluent reading and revision tracking
+   - **Fluent Reading**: New reading sessions with page ranges
+   - **Revision**: Review of previous reading material
 
 ### UI Components
 - **StudentSelector**: Searchable dropdown with student information display
@@ -87,8 +92,11 @@ This is a Quran memorization (Hifz) tracking system built with a modern full-sta
 - `DATABASE_URL` connects to Neon PostgreSQL instance
 - Port 5000 for local development, port 80 for production
 
-## Changelog
-- June 15, 2025. Initial setup
+## Recent Changes
+- June 15, 2025: Initial Hifz tracking system setup with dynamic forms
+- June 15, 2025: Added Najera Section support with fluent reading tracking
+- June 15, 2025: Implemented dual-section navigation system
+- June 15, 2025: Added section-specific student data and validation
 
 ## User Preferences
 

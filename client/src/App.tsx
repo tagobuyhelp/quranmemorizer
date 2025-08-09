@@ -167,7 +167,7 @@ function Router() {
                   console.log("Redirecting based on role:", currentRole);
                   switch (currentRole) {
                     case "super-admin":
-                      navigate("/admin/dashboard");
+                      navigate("/platform/dashboard");
                       break;
                     case "madrasah-admin":
                       navigate("/admin/dashboard");
@@ -232,8 +232,15 @@ function Router() {
               </RequireAuth>
             )} />
 
-            {/* Super Admin Routes */}
+            {/* Super Admin + Madrasah Admin Routes */}
             <Route path="/admin/dashboard" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminDashboard />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/platform/dashboard" component={() => (
               <RequireAuth>
                 <RequireRole roles={["super-admin"]}>
                   <AdminDashboard />

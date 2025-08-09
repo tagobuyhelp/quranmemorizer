@@ -421,14 +421,14 @@ export function MobileBottomBar() {
           const active = location === href || location.startsWith(href + "/");
           return (
             <Link key={href} href={href}>
-              <a className={`flex flex-col items-center justify-center py-2.5 px-2 rounded-lg transition-colors duration-200 ${
+              <div className={`flex flex-col items-center justify-center py-2.5 px-2 rounded-lg transition-colors duration-200 ${
                 active 
                   ? "bg-hafizo-primary text-white shadow-md" 
                   : "text-gray-600 hover:bg-gray-100"
               }`}>
                 <Icon className={`mb-1 ${active ? "text-white" : "text-gray-700"} h-5 w-5`} />
                 <span className="text-[11px] leading-none font-medium">{label}</span>
-              </a>
+              </div>
             </Link>
           );
         })}

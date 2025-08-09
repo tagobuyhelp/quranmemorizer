@@ -3,12 +3,8 @@ import type { Config } from "tailwindcss";
 export default {
   darkMode: ["class"],
   content: [
-    "./client/src/**/*.{ts,tsx}",
-    "./client/index.html",
     "./src/**/*.{ts,tsx}",
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
+    "./index.html",
   ],
   prefix: "",
   theme: {
@@ -86,4 +82,4 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+} satisfies Config; 

@@ -77,7 +77,7 @@ export function TaskFields({ form, taskType, selectedStudent, paraData }: TaskFi
                       <SelectValue placeholder="Select para" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="max-h-40 overflow-y-auto bg-white">
                     {Array.from({ length: 30 }, (_, i) => i + 1).map((paraNum) => (
                       <SelectItem key={paraNum} value={paraNum.toString()}>
                         {paraNum} {selectedStudent?.currentPara === paraNum && "(Current)"}
@@ -115,7 +115,9 @@ export function TaskFields({ form, taskType, selectedStudent, paraData }: TaskFi
             render={({ field }) => (
               <FormItem>
                 <FormLabel>From Page</FormLabel>
+                
                 <Select 
+                  
                   value={field.value?.toString()} 
                   onValueChange={(value) => field.onChange(parseInt(value))}
                   disabled={!para}
@@ -125,7 +127,7 @@ export function TaskFields({ form, taskType, selectedStudent, paraData }: TaskFi
                       <SelectValue placeholder="Select from page" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="max-h-40 overflow-y-auto bg-white">
                     {para && getPageOptions(para).map((pageNum) => (
                       <SelectItem key={pageNum} value={pageNum.toString()}>
                         {pageNum}
@@ -154,7 +156,7 @@ export function TaskFields({ form, taskType, selectedStudent, paraData }: TaskFi
                       <SelectValue placeholder="Select to page" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="max-h-40 overflow-y-auto bg-white">
                     {para && fromPage && getToPageOptions(para, fromPage).map((pageNum) => (
                       <SelectItem key={pageNum} value={pageNum.toString()}>
                         {pageNum}
@@ -236,7 +238,7 @@ export function TaskFields({ form, taskType, selectedStudent, paraData }: TaskFi
             render={({ field }) => (
               <FormItem>
                 <FormLabel>To Page</FormLabel>
-                <div className="bg-gray-50 px-4 py-3 rounded-lg border border-gray-200">
+                <div className="max-h-40 overflow-y-auto bg-white">
                   <span className="text-sm font-medium text-gray-900">
                     {currentParaData?.endPage || "N/A"}
                   </span>

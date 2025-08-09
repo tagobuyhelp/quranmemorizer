@@ -37,7 +37,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (membership) {
           req.session.organizationId = membership.organizationId.toString();
         }
-        const safeUser = { id: user.id, username: user.username, name: user.name, role: user.role, organizationId: req.session.organizationId || null };
+        
+        // Get user with memberships and current role
+        const userWithMemberships = await User.findById(user.id).lean();
+        const memberships = await Membership.find({ userId: user.id }).lean();
+        const currentMembership = membership ? await Membership.findOne({ 
+          userId: user.id, 
+          organizationId: membership.organizationId 
+        }).lean() : null;
+        
+        const safeUser = { 
+          id: user.id, 
+          username: user.username, 
+          name: user.name, 
+          email: user.email,
+          memberships: memberships.map(m => ({
+            organizationId: m.organizationId.toString(),
+            role: m.role,
+            section: m.section,
+            studentId: m.studentId,
+            permissions: m.permissions,
+            isActive: m.isActive
+          })),
+          currentOrganizationId: req.session.organizationId || null,
+          currentRole: currentMembership?.role || null
+        };
         res.json({ user: safeUser });
       });
     })(req, res, next);
@@ -49,10 +73,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/auth/me", (req, res) => {
+  app.get("/api/auth/me", async (req, res) => {
     const user = req.user as any;
     if (!user) return res.status(401).json({ error: "Unauthorized" });
-    const safeUser = { id: user._id || user.id, username: user.username, name: user.name, role: user.role, organizationId: req.session.organizationId || null };
+    
+    // Get user with memberships and current role
+    const memberships = await Membership.find({ userId: user.id }).lean();
+    const currentMembership = req.session.organizationId ? await Membership.findOne({ 
+      userId: user.id, 
+      organizationId: req.session.organizationId 
+    }).lean() : null;
+    
+    const safeUser = { 
+      id: user._id || user.id, 
+      username: user.username, 
+      name: user.name, 
+      email: user.email,
+      memberships: memberships.map(m => ({
+        organizationId: m.organizationId.toString(),
+        role: m.role,
+        section: m.section,
+        studentId: m.studentId,
+        permissions: m.permissions,
+        isActive: m.isActive
+      })),
+      currentOrganizationId: req.session.organizationId || null,
+      currentRole: currentMembership?.role || null
+    };
     res.json({ user: safeUser });
   });
 

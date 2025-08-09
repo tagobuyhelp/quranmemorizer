@@ -141,22 +141,166 @@ export async function initializeDatabase() {
       console.log("✅ Sample students initialized");
     }
 
-    // Seed default admin if none exists
-    let admin = await User.findOne({ username: "admin" });
-    if (!admin) {
-      console.log("🔐 Seeding default admin user (username: admin / password: admin123)");
-      const passwordHash = await bcrypt.hash("admin123", 10);
-      admin = await User.create({ username: "admin", passwordHash, name: "Administrator", role: "admin" });
+    // Seed users for all roles
+    console.log("🔐 Seeding users for all roles...");
+    
+    const defaultPassword = "password123";
+    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+
+    // Super Admin
+    let superAdmin = await User.findOne({ username: "superadmin" });
+    if (!superAdmin) {
+      superAdmin = await User.create({ 
+        username: "superadmin", 
+        passwordHash, 
+        name: "Super Administrator",
+        email: "superadmin@hafizo.com",
+        isActive: true
+      });
+      await Membership.create({ 
+        userId: superAdmin.id, 
+        organizationId: org!.id, 
+        role: "super-admin",
+        isActive: true
+      });
+      console.log("👑 Created Super Admin (username: superadmin / password: password123)");
     }
 
-    // Ensure admin has membership in default org
-    const hasMembership = await Membership.findOne({ userId: admin.id, organizationId: org!.id });
-    if (!hasMembership) {
-      await Membership.create({ userId: admin.id, organizationId: org!.id, role: "admin" });
-      console.log("👤 Linked admin to default organization");
+    // Madrasah Admin
+    let madrasahAdmin = await User.findOne({ username: "admin" });
+    if (!madrasahAdmin) {
+      madrasahAdmin = await User.create({ 
+        username: "admin", 
+        passwordHash, 
+        name: "Madrasah Administrator",
+        email: "admin@hafizo.com",
+        isActive: true
+      });
+      await Membership.create({ 
+        userId: madrasahAdmin.id, 
+        organizationId: org!.id, 
+        role: "madrasah-admin",
+        isActive: true
+      });
+      console.log("🏫 Created Madrasah Admin (username: admin / password: password123)");
+    } else {
+      // Check if admin has proper membership
+      const adminMembership = await Membership.findOne({ 
+        userId: madrasahAdmin.id, 
+        organizationId: org!.id 
+      });
+      
+      if (!adminMembership) {
+        await Membership.create({ 
+          userId: madrasahAdmin.id, 
+          organizationId: org!.id, 
+          role: "madrasah-admin",
+          isActive: true
+        });
+        console.log("🏫 Updated existing admin with proper membership");
+      } else if (adminMembership.role !== "madrasah-admin") {
+        // Update existing membership to correct role
+        await Membership.findByIdAndUpdate(adminMembership.id, { 
+          role: "madrasah-admin",
+          isActive: true
+        });
+        console.log("🏫 Updated existing admin role to madrasah-admin");
+      }
+    }
+
+    // Teachers
+    const teacherUsers = [
+      { username: "teacher1", name: "Ustad Ahmed Hassan", email: "ahmed@hafizo.com" },
+      { username: "teacher2", name: "Ustadah Fatima Ali", email: "fatima@hafizo.com" },
+      { username: "teacher3", name: "Ustad Omar Khan", email: "omar@hafizo.com" },
+      { username: "teacher4", name: "Ustad Muhammad Saleem", email: "muhammad@hafizo.com" }
+    ];
+
+    for (const teacherData of teacherUsers) {
+      let teacher = await User.findOne({ username: teacherData.username });
+      if (!teacher) {
+        teacher = await User.create({ 
+          username: teacherData.username, 
+          passwordHash, 
+          name: teacherData.name,
+          email: teacherData.email,
+          isActive: true
+        });
+        await Membership.create({ 
+          userId: teacher.id, 
+          organizationId: org!.id, 
+          role: "teacher",
+          isActive: true
+        });
+        console.log(`👨‍🏫 Created Teacher ${teacherData.name} (username: ${teacherData.username} / password: password123)`);
+      }
+    }
+
+    // Parents
+    const parentUsers = [
+      { username: "parent1", name: "Abdullah's Father", email: "abdullah.parent@hafizo.com" },
+      { username: "parent2", name: "Fatima's Mother", email: "fatima.parent@hafizo.com" },
+      { username: "parent3", name: "Omar's Father", email: "omar.parent@hafizo.com" },
+      { username: "parent4", name: "Aisha's Mother", email: "aisha.parent@hafizo.com" }
+    ];
+
+    for (const parentData of parentUsers) {
+      let parent = await User.findOne({ username: parentData.username });
+      if (!parent) {
+        parent = await User.create({ 
+          username: parentData.username, 
+          passwordHash, 
+          name: parentData.name,
+          email: parentData.email,
+          isActive: true
+        });
+        await Membership.create({ 
+          userId: parent.id, 
+          organizationId: org!.id, 
+          role: "parent",
+          isActive: true
+        });
+        console.log(`👨‍👩‍👧‍👦 Created Parent ${parentData.name} (username: ${parentData.username} / password: password123)`);
+      }
+    }
+
+    // Students
+    const studentUsers = [
+      { username: "student1", name: "Abdullah Farid", email: "abdullah@hafizo.com" },
+      { username: "student2", name: "Fatima Noor", email: "fatima.student@hafizo.com" },
+      { username: "student3", name: "Omar Hassan", email: "omar.student@hafizo.com" },
+      { username: "student4", name: "Aisha Khan", email: "aisha.student@hafizo.com" }
+    ];
+
+    for (const studentData of studentUsers) {
+      let student = await User.findOne({ username: studentData.username });
+      if (!student) {
+        student = await User.create({ 
+          username: studentData.username, 
+          passwordHash, 
+          name: studentData.name,
+          email: studentData.email,
+          isActive: true
+        });
+        await Membership.create({ 
+          userId: student.id, 
+          organizationId: org!.id, 
+          role: "student",
+          isActive: true
+        });
+        console.log(`👨‍🎓 Created Student ${studentData.name} (username: ${studentData.username} / password: password123)`);
+      }
     }
 
     console.log("🎉 Database initialization completed");
+    console.log("\n📋 Login Credentials Summary:");
+    console.log("================================");
+    console.log("👑 Super Admin: superadmin / password123");
+    console.log("🏫 Madrasah Admin: admin / password123");
+    console.log("👨‍🏫 Teachers: teacher1, teacher2, teacher3, teacher4 / password123");
+    console.log("👨‍👩‍👧‍👦 Parents: parent1, parent2, parent3, parent4 / password123");
+    console.log("👨‍🎓 Students: student1, student2, student3, student4 / password123");
+    console.log("================================");
   } catch (error) {
     console.error("❌ Error initializing database:", error);
   }

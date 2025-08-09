@@ -176,11 +176,11 @@ export default function HifzEntry() {
       <main className="max-w-4xl mx-auto px-4 py-4 md:py-8">
         <Card className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           {/* Form Header */}
-          <div className="bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-4">
+          <div className="bg-gradient-to-r from-hafizo-primary to-hafizo-primary-dark text-white px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Daily Progress Entry</h2>
-                <p className="text-blue-100 text-sm">Auto-Section Detection Active</p>
+                <p className="text-green-100 text-sm">Auto-Section Detection Active</p>
               </div>
               <div className="bg-white/20 px-3 py-1 rounded-full">
                 <span className="text-sm font-medium">Today: {getCurrentDate()}</span>
@@ -230,7 +230,7 @@ export default function HifzEntry() {
                         Assigned Teacher
                       </label>
                       <div className="bg-white px-3 py-2 rounded border border-gray-200">
-                        <span className="text-sm font-medium text-gray-900">{selectedStudent.teacher}</span>
+                        <span className="text-sm font-medium text-gray-900">{String(selectedStudent.teacherId)}</span>
                       </div>
                     </div>
                   </div>

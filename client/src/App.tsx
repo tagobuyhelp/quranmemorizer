@@ -7,6 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { BookOpen, Users, Home, GraduationCap, Crown, Menu, TrendingUp, Building2, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Spinner } from "@/components/ui/spinner";
+import { AuthProvider, useAuthContext } from "@/contexts/auth";
+import { RoleNavigation, MobileBottomBar } from "@/components/role-navigation";
+
+// Import existing pages
 import HifzEntry from "@/pages/hifz-entry";
 import NajeraEntry from "@/pages/najera-entry";
 import NooraniEntry from "@/pages/noorani-entry";
@@ -19,12 +28,38 @@ import AdminUsersPage from "@/pages/admin-users";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminOrganizationsPage from "@/pages/admin-organizations";
 import AdminSubscriptionsPage from "@/pages/admin-subscriptions";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Spinner } from "@/components/ui/spinner";
-import { AuthProvider, useAuthContext } from "@/contexts/auth";
+
+// Import new role-based pages (to be created)
+import TeacherDashboard from "@/pages/teacher/dashboard";
+import TeacherAttendance from "@/pages/teacher/attendance";
+import TeacherStudents from "@/pages/teacher/students";
+import TeacherReports from "@/pages/teacher/reports";
+import TeacherMessaging from "@/pages/teacher/messaging";
+import TeacherResources from "@/pages/teacher/resources";
+
+import ParentDashboard from "@/pages/parent/dashboard";
+import ParentAttendance from "@/pages/parent/attendance";
+import ParentProgress from "@/pages/parent/progress";
+import ParentMessaging from "@/pages/parent/messaging";
+import ParentFinance from "@/pages/parent/finance";
+import ParentNotifications from "@/pages/parent/notifications";
+
+import StudentDashboard from "@/pages/student/dashboard";
+import StudentLessons from "@/pages/student/lessons";
+import StudentProgress from "@/pages/student/progress";
+import StudentSchedule from "@/pages/student/schedule";
+import StudentResources from "@/pages/student/resources";
+import StudentAchievements from "@/pages/student/achievements";
+
+import AdminStudents from "@/pages/admin/students";
+import AdminTeachers from "@/pages/admin/teachers";
+import AdminClasses from "@/pages/admin/classes";
+import AdminAttendance from "@/pages/admin/attendance";
+import AdminReports from "@/pages/admin/reports";
+import AdminFinance from "@/pages/admin/finance";
+import AdminMessaging from "@/pages/admin/messaging";
+import AdminAnalytics from "@/pages/admin/analytics";
+import AdminSystemSettings from "@/pages/admin/system-settings";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { unauthorized, isLoading } = useAuthContext();
@@ -38,14 +73,14 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 }
 
 function RequireRole({ roles, children }: { roles: Array<string>; children: JSX.Element }) {
-  const { user, unauthorized, isLoading } = useAuthContext();
+  const { user, unauthorized, isLoading, currentRole } = useAuthContext();
   const [, navigate] = useLocation();
   useEffect(() => {
     if (!isLoading && unauthorized) navigate("/login");
-    else if (!isLoading && user && !roles.includes(user.role)) navigate("/");
-  }, [unauthorized, user, isLoading]);
+    else if (!isLoading && user && currentRole && !roles.includes(currentRole)) navigate("/");
+  }, [unauthorized, user, isLoading, currentRole]);
   if (isLoading || !user) return <div className="flex items-center justify-center p-10"><Spinner className="h-6 w-6" /></div>;
-  if (!roles.includes(user.role)) return null;
+  if (!currentRole || !roles.includes(currentRole)) return null;
   return children;
 }
 
@@ -57,9 +92,7 @@ function initials(name?: string) {
   return (first + last).toUpperCase();
 }
 
-function Navigation() {
-  const [location] = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+function UserMenu() {
   const { user, organization } = useAuthContext();
   const qc = useQueryClient();
   const [, navigate] = useLocation();
@@ -71,150 +104,42 @@ function Navigation() {
     await qc.clear();
     navigate("/login");
   }
-  
-  const baseItems = [
-    { href: "/hifz", icon: Home, label: "Hifz Daily", active: location === "/hifz" || location === "/" },
-    { href: "/khatm", icon: Crown, label: "Khatm", active: location === "/khatm" },
-    { href: "/najera", icon: Users, label: "Najera", active: location === "/najera" },
-    { href: "/noorani", icon: GraduationCap, label: "Noorani", active: location === "/noorani" },
-  ];
 
-  const headTeacherItems = [
-    ...baseItems,
-    { href: "/settings", icon: Menu, label: "Settings", active: location === "/settings" },
-  ];
+  if (!user) return null;
 
-  const adminItems = [
-    ...headTeacherItems,
-    { href: "/admin", icon: TrendingUp, label: "Dashboard", active: location === "/admin" },
-    { href: "/admin/organizations", icon: Building2, label: "Organizations", active: location === "/admin/organizations" },
-    { href: "/admin/users", icon: Users, label: "Users", active: location === "/admin/users" },
-    { href: "/admin/subscriptions", icon: CreditCard, label: "Subscriptions", active: location === "/admin/subscriptions" },
-    { href: "/billing", icon: Crown, label: "Billing", active: location === "/billing" },
-  ];
-
-  const navigationItems = user?.role === "admin" ? adminItems : user?.role === "head-teacher" ? headTeacherItems : baseItems;
-
-  const NavButton = ({ href, icon: Icon, label, active }: any) => (
-    <Link href={href}>
-      <Button 
-        variant={active ? "default" : "ghost"}
-        size="sm"
-        className="flex items-center space-x-2 touch-target w-full justify-start md:w-auto md:justify-center"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        <Icon className="h-4 w-4" />
-        <span className="md:inline">{label}</span>
-      </Button>
-    </Link>
-  );
-  
-  return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary text-white p-2 rounded-lg">
-              <BookOpen className="h-5 w-5" />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="font-semibold text-gray-900">{organization?.name || "Quran Learning Center"}</h1>
-              <p className="text-xs text-gray-600">{organization?.description || "Progress Tracking System"}</p>
-            </div>
-            <div className="sm:hidden">
-              <h1 className="font-semibold text-gray-900 text-sm">{organization?.name || "QLC"}</h1>
-            </div>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2">
-            {navigationItems.map((item) => (
-              <NavButton key={item.href} {...item} />
-            ))}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="ml-2 flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarFallback>
-                        {initials(user.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm hidden lg:inline">{user.name}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem disabled className="text-xs">Role: {user.role}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/settings")}>Settings</DropdownMenuItem>
-                  <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link href="/login">
-                <Button variant="default" size="sm" className="ml-2 flex items-center gap-2">
-                  <span>Login</span>
-                </Button>
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="touch-target">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-64">
-                <div className="flex flex-col space-y-2 mt-6">
-                  <div className="mb-4">
-                    <h2 className="font-semibold text-gray-900">Navigation</h2>
-                    <p className="text-xs text-gray-600">Select a section</p>
-                  </div>
-                  {navigationItems.map((item) => (
-                    <NavButton key={item.href} {...item} />
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-function MobileBottomBar() {
-  const [location] = useLocation();
-  const { user } = useAuthContext();
-
-  const baseItems = [
-    { href: "/hifz", icon: Home, label: "Hifz" },
-    { href: "/najera", icon: Users, label: "Najera" },
-    { href: "/noorani", icon: GraduationCap, label: "Noorani" },
-    { href: "/khatm", icon: Crown, label: "Khatm" },
-  ];
-  const headTeacherItems = [...baseItems, { href: "/settings", icon: Menu, label: "Settings" }];
-  const adminItems = [...headTeacherItems, { href: "/admin", icon: TrendingUp, label: "Dashboard" }, { href: "/admin/organizations", icon: Building2, label: "Organizations" }, { href: "/admin/users", icon: Users, label: "Users" }, { href: "/admin/subscriptions", icon: CreditCard, label: "Subscriptions" }, { href: "/billing", icon: Crown, label: "Billing" }];
-  const items = user?.role === "admin" ? adminItems : user?.role === "head-teacher" ? headTeacherItems : baseItems;
+  // Format role name properly
+  const formatRoleName = (role?: string) => {
+    if (!role) return "Unknown";
+    return role
+      .replace("-", " ")
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
   return (
-    <div className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t shadow-sm z-50">
-      <div className="grid grid-cols-4 sm:grid-cols-5">
-        {items.slice(0, 5).map(({ href, icon: Icon, label }) => {
-          const active = location === href || (href === "/hifz" && location === "/");
-          return (
-            <Link key={href} href={href}>
-              <a className={`flex flex-col items-center justify-center py-2 text-xs ${active ? "text-primary" : "text-gray-600"}`}>
-                <Icon className="h-5 w-5" />
-                <span className="mt-0.5">{label}</span>
-              </a>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="ml-2 flex items-center gap-2">
+          <Avatar className="h-6 w-6">
+            <AvatarFallback>
+              {initials(user.name)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-sm hidden lg:inline">{user.name}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem disabled className="text-xs">
+          Role: {formatRoleName(user.currentRole)}
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled className="text-xs">
+          Org: {organization?.name || "Unknown"}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate("/settings")}>Settings</DropdownMenuItem>
+        <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -224,75 +149,423 @@ function Router() {
       <Switch>
         <Route path="/login" component={LoginPage} />
         <Route>
-          <Navigation />
+          <RequireAuth>
+            <>
+              <RoleNavigation />
+            </>
+          </RequireAuth>
           <Switch>
-            <Route path="/" component={() => (
-              <RequireAuth>
-                <HifzEntry />
-              </RequireAuth>
-            )} />
+            {/* Legacy routes - redirect to role-based routes */}
+            <Route path="/" component={() => {
+              const { currentRole, user, isLoading } = useAuthContext();
+              const [, navigate] = useLocation();
+              
+              useEffect(() => {
+                console.log("Root route - currentRole:", currentRole, "user:", user, "isLoading:", isLoading);
+                
+                if (!isLoading && currentRole) {
+                  console.log("Redirecting based on role:", currentRole);
+                  switch (currentRole) {
+                    case "super-admin":
+                      navigate("/admin/dashboard");
+                      break;
+                    case "madrasah-admin":
+                      navigate("/admin/dashboard");
+                      break;
+                    case "teacher":
+                      navigate("/teacher/dashboard");
+                      break;
+                    case "parent":
+                      navigate("/parent/dashboard");
+                      break;
+                    case "student":
+                      navigate("/student/dashboard");
+                      break;
+                    default:
+                      console.log("Unknown role, redirecting to login");
+                      navigate("/login");
+                  }
+                } else if (!isLoading && !user) {
+                  console.log("No user found, redirecting to login");
+                  navigate("/login");
+                }
+              }, [currentRole, user, isLoading, navigate]);
+              
+              return (
+                <div className="flex items-center justify-center p-10">
+                  <div className="text-center">
+                    <Spinner className="h-6 w-6 mx-auto mb-4" />
+                    <p className="text-gray-600">Loading your dashboard...</p>
+                    {currentRole && <p className="text-sm text-gray-500 mt-2">Role: {currentRole}</p>}
+                  </div>
+                </div>
+              );
+            }} />
+            
+            {/* Legacy entry forms - keep for backward compatibility */}
             <Route path="/hifz" component={() => (
               <RequireAuth>
-                <HifzEntry />
+                <RequireRole roles={["teacher", "madrasah-admin"]}>
+                  <HifzEntry />
+                </RequireRole>
               </RequireAuth>
             )} />
             <Route path="/khatm" component={() => (
               <RequireAuth>
-                <KhatmEntry />
+                <RequireRole roles={["teacher", "madrasah-admin"]}>
+                  <KhatmEntry />
+                </RequireRole>
               </RequireAuth>
             )} />
             <Route path="/najera" component={() => (
               <RequireAuth>
-                <NajeraEntry />
+                <RequireRole roles={["teacher", "madrasah-admin"]}>
+                  <NajeraEntry />
+                </RequireRole>
               </RequireAuth>
             )} />
             <Route path="/noorani" component={() => (
               <RequireAuth>
-                <NooraniEntry />
-              </RequireAuth>
-            )} />
-            <Route path="/billing" component={() => (
-              <RequireAuth>
-                <RequireRole roles={["admin"]}>
-                  <BillingPage />
+                <RequireRole roles={["teacher", "madrasah-admin"]}>
+                  <NooraniEntry />
                 </RequireRole>
               </RequireAuth>
             )} />
-            <Route path="/settings" component={() => (
+
+            {/* Super Admin Routes */}
+            <Route path="/admin/dashboard" component={() => (
               <RequireAuth>
-                <RequireRole roles={["admin", "head-teacher"]}>
-                  <SettingsPage />
-                </RequireRole>
-              </RequireAuth>
-            )} />
-            <Route path="/admin" component={() => (
-              <RequireAuth>
-                <RequireRole roles={["admin"]}>
+                <RequireRole roles={["super-admin"]}>
                   <AdminDashboard />
                 </RequireRole>
               </RequireAuth>
             )} />
             <Route path="/admin/organizations" component={() => (
               <RequireAuth>
-                <RequireRole roles={["admin"]}>
+                <RequireRole roles={["super-admin"]}>
                   <AdminOrganizationsPage />
                 </RequireRole>
               </RequireAuth>
             )} />
             <Route path="/admin/users" component={() => (
               <RequireAuth>
-                <RequireRole roles={["admin"]}>
+                <RequireRole roles={["super-admin"]}>
                   <AdminUsersPage />
                 </RequireRole>
               </RequireAuth>
             )} />
             <Route path="/admin/subscriptions" component={() => (
               <RequireAuth>
-                <RequireRole roles={["admin"]}>
+                <RequireRole roles={["super-admin"]}>
                   <AdminSubscriptionsPage />
                 </RequireRole>
               </RequireAuth>
             )} />
+            <Route path="/admin/analytics" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["super-admin"]}>
+                  <AdminAnalytics />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin/system-settings" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["super-admin"]}>
+                  <AdminSystemSettings />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+
+            {/* Madrasah Admin Routes */}
+            <Route path="/admin/students" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminStudents />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin/teachers" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminTeachers />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin/classes" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminClasses />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin/attendance" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminAttendance />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin/reports" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminReports />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin/finance" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminFinance />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin/messaging" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["madrasah-admin"]}>
+                  <AdminMessaging />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+
+            {/* Teacher Routes */}
+            <Route path="/teacher/dashboard" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <TeacherDashboard />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/attendance" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <TeacherAttendance />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/hifz" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <HifzEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/najera" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <NajeraEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/noorani" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <NooraniEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/khatm" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <KhatmEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/students" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <TeacherStudents />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/reports" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <TeacherReports />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/messaging" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <TeacherMessaging />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/teacher/resources" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["teacher"]}>
+                  <TeacherResources />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+
+            {/* Parent Routes */}
+            <Route path="/parent/dashboard" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <ParentDashboard />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/attendance" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <ParentAttendance />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/progress" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <ParentProgress />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/hifz" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <HifzEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/najera" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <NajeraEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/noorani" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <NooraniEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/khatm" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <KhatmEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/messaging" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <ParentMessaging />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/finance" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <ParentFinance />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/parent/notifications" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["parent"]}>
+                  <ParentNotifications />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+
+            {/* Student Routes */}
+            <Route path="/student/dashboard" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <StudentDashboard />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/lessons" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <StudentLessons />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/progress" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <StudentProgress />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/hifz" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <HifzEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/najera" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <NajeraEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/noorani" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <NooraniEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/khatm" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <KhatmEntry />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/schedule" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <StudentSchedule />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/resources" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <StudentResources />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/student/achievements" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["student"]}>
+                  <StudentAchievements />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+
+            {/* Legacy admin routes - keep for backward compatibility */}
+            <Route path="/billing" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["super-admin"]}>
+                  <BillingPage />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/settings" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["super-admin", "madrasah-admin"]}>
+                  <SettingsPage />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+            <Route path="/admin" component={() => (
+              <RequireAuth>
+                <RequireRole roles={["super-admin", "madrasah-admin"]}>
+                  <AdminDashboard />
+                </RequireRole>
+              </RequireAuth>
+            )} />
+
             <Route component={NotFound} />
           </Switch>
           <RequireAuth>
